@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+    stages {
+        stage ('Build & Test') {
+            steps {
+                sh 'echo Building... Failure here will fail the build'
+                script {
+                    try {
+                        echo 'Running tests...'
+                        sh 'exit 1'
+                    }
+                    catch (exc) {
+                        echo 'Testing failed!'
+                        currentBuild.result = 'UNSTABLE'
+                    }
+                }
+            }
+        }
+    }
+	post {
+       unstable {
+            echo 'The Pipeline failed :('
+            withEnv(['JIRA_SITE=JIRA']) {
+                jiraNewIssue issue: [fields: [
+                                      project: [key: 'UD'],
+                                      summary: 'PCI Payment page build has failed.',
+                                      description: 'PCI Payment page build has failed.',
+                                      issuetype: [id: '10004'],
+                                      components: [[id:'10028']]
+                                      ]]
+            }
+        }
+	}
+}
