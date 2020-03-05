@@ -18,7 +18,7 @@ pipeline {
         }
     }
 	post {
-       unstable {
+       failure {
             echo 'The Pipeline failed :('
             withEnv(['JIRA_SITE=JIRA']) {
                 jiraNewIssue issue: [fields: [
